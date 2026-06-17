@@ -1,0 +1,6 @@
+{
+    "unused_ebs_volumes": 2,
+    "unused_elastic_ips": 2,
+    "idle_ec2_instances": 2,
+    "estimated_monthly_savings": "$120"
+}
