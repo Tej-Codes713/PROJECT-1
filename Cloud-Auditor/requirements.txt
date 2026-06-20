@@ -1,1 +1,4 @@
-# Add project dependencies here
+typer
+rich
+pytest
+boto3
