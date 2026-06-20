@@ -24,4 +24,6 @@ python main.py report
 
 Run Cleanup:
 
-python main.py cleanup
+python main.py cleanup 
+
+## creted a AWS account
