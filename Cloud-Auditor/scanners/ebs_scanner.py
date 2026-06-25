@@ -1,15 +1,21 @@
+import boto3
+
 def scan_ebs():
-    volumes = [
-        {
-            "volume_id": "vol-12345",
-            "size": 100,
-            "region": "ap-south-1"
-        },
-        {
-            "volume_id": "vol-67890",
-            "size": 50,
-            "region": "us-east-1"
-        }
-    ]
+
+    ec2 = boto3.client("ec2", region_name="eu-north-1")
+
+    response = ec2.describe_volumes()
+
+    volumes = []
+
+    for volume in response["Volumes"]:
+
+        if len(volume["Attachments"]) == 0:
+
+            volumes.append({
+                "volume_id": volume["VolumeId"],
+                "size": volume["Size"],
+                "region": "eu-north-1"
+            })
 
     return volumes

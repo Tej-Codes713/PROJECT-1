@@ -1,13 +1,20 @@
+import boto3
+
 def scan_eips():
-    eips = [
-        {
-            "ip": "52.66.100.10",
-            "region": "ap-south-1"
-        },
-        {
-            "ip": "3.110.45.89",
-            "region": "us-east-1"
-        }
-    ]
+
+    ec2 = boto3.client("ec2", region_name="eu-north-1")
+
+    response = ec2.describe_addresses()
+
+    eips = []
+
+    for address in response["Addresses"]:
+
+        if "InstanceId" not in address:
+
+            eips.append({
+                "ip": address["PublicIp"],
+                "region": "eu-north-1"
+            })
 
     return eips

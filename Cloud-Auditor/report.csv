@@ -1,5 +1,5 @@
 Metric,Value
-Unused EBS Volumes,2
-Unused Elastic IPs,2
+Unused EBS Volumes,0
+Unused Elastic IPs,0
 Idle EC2 Instances,2
 Estimated Monthly Savings,$120
