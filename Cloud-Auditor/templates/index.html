@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Cloud Auditor Pro</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- ===================== -->
+    <!-- Sidebar -->
+    <!-- ===================== -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <h2>☁ Cloud Auditor</h2>
+
+            <p>Professional Dashboard</p>
+
+        </div>
+
+        <ul>
+
+            <li class="active">🏠 Dashboard</li>
+
+            <li>🖥 EC2</li>
+
+            <li>💾 EBS</li>
+
+            <li>🌐 Elastic IP</li>
+
+            <li>🪣 S3</li>
+
+            <li>📊 Reports</li>
+
+            <li>⚙ Settings</li>
+
+        </ul>
+
+    </aside>
+
+
+    <!-- ===================== -->
+    <!-- Main Content -->
+    <!-- ===================== -->
+
+    <main class="main">
+
+        <!-- Navbar -->
+
+        <div class="topbar">
+
+            <div>
+
+                <h1>Cloud Auditor Dashboard</h1>
+
+                <p>
+                    Monitor AWS Resources in Real Time
+                </p>
+
+            </div>
+
+            <div class="actions">
+
+                <button id="refreshBtn">
+
+                    🔄 Refresh
+
+                </button>
+
+                <button id="darkMode">
+
+                    🌙 Dark Mode
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ===================== -->
+        <!-- Statistics Cards -->
+        <!-- ===================== -->
+
+        <div class="cards">
+
+            <div class="card">
+
+                <h4>EC2 Instances</h4>
+
+                <h2 id="ec2Count">
+
+                    {{ ec2_count }}
+
+                </h2>
+
+            </div>
+
+            <div class="card">
+
+                <h4>Unused EBS</h4>
+
+                <h2 id="ebsCount">
+
+                    {{ ebs_count }}
+
+                </h2>
+
+            </div>
+
+            <div class="card">
+
+                <h4>Elastic IPs</h4>
+
+                <h2 id="eipsCount">
+
+                    {{ eips_count }}
+
+                </h2>
+
+            </div>
+
+            <div class="card">
+
+                <h4>S3 Buckets</h4>
+
+                <h2 id="s3Count">
+
+                    {{ s3_count }}
+
+                </h2>
+
+            </div>
+
+            <div class="card savings">
+
+                <h4>Estimated Savings</h4>
+
+                <h2>
+
+                    ${{ cost.total }}
+
+                </h2>
+
+                <small>per month</small>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ===================== -->
+        <!-- Health Card -->
+        <!-- ===================== -->
+
+        <div class="health-card">
+
+            <div>
+
+                <h2>
+
+                    Cloud Health
+
+                </h2>
+
+                <h1>
+
+                    {{ health_score }}%
+
+                </h1>
+
+            </div>
+
+            <div>
+
+                <span class="badge {{ health_color }}">
+
+                    {{ health_status }}
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ===================== -->
+        <!-- Last Scan -->
+        <!-- ===================== -->
+
+        <div class="scan-info">
+
+            <p>
+
+                🕒 Last Scan :
+                <span id="lastScan">
+
+                    {{ last_scan }}
+
+                </span>
+
+            </p>
+
+        </div>
+
+
+
+        <!-- ===================== -->
+        <!-- Charts -->
+        <!-- ===================== -->
+
+        <div class="chart-grid">
+
+            <div class="chart-card">
+
+                <h3>AWS Resources</h3>
+
+                <canvas id="resourceChart"></canvas>
+
+            </div>
+
+            <div class="chart-card">
+
+                <h3>Cost Breakdown</h3>
+
+                <canvas id="costChart"></canvas>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ===================== -->
+        <!-- Download Buttons -->
+        <!-- ===================== -->
+
+        <div class="download-buttons">
+
+            <button>
+
+                📥 Download JSON
+
+            </button>
+
+            <button>
+
+                📥 Download CSV
+
+            </button>
+
+        </div>
+
+
+
+        <!-- ===================== -->
+        <!-- EC2 Table -->
+        <!-- ===================== -->
+
+        <div class="table-card">
+
+            <h2>
+
+                EC2 Instances
+
+            </h2>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Instance ID</th>
+
+                        <th>CPU Usage</th>
+
+                        <th>Region</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% if ec2 %}
+
+                    {% for instance in ec2 %}
+
+                    <tr>
+
+                        <td>{{ instance.instance_id }}</td>
+
+                        <td>{{ instance.cpu_usage }}</td>
+
+                        <td>{{ instance.region }}</td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="3">
+
+                            No EC2 Instances Found
+
+                        </td>
+
+                    </tr>
+
+                {% endif %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+                <!-- ===================== -->
+        <!-- EBS Table -->
+        <!-- ===================== -->
+
+        <div class="table-card">
+
+            <h2>Unused EBS Volumes</h2>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Volume ID</th>
+                        <th>Size (GB)</th>
+                        <th>Region</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% if ebs %}
+
+                    {% for volume in ebs %}
+
+                    <tr>
+
+                        <td>{{ volume.volume_id }}</td>
+                        <td>{{ volume.size }}</td>
+                        <td>{{ volume.region }}</td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="3">
+
+                            No Unused EBS Volumes
+
+                        </td>
+
+                    </tr>
+
+                {% endif %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- ===================== -->
+        <!-- Elastic IP Table -->
+        <!-- ===================== -->
+
+        <div class="table-card">
+
+            <h2>Unused Elastic IPs</h2>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Public IP</th>
+                        <th>Region</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% if eips %}
+
+                    {% for ip in eips %}
+
+                    <tr>
+
+                        <td>{{ ip.ip }}</td>
+                        <td>{{ ip.region }}</td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="2">
+
+                            No Unused Elastic IPs
+
+                        </td>
+
+                    </tr>
+
+                {% endif %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- ===================== -->
+        <!-- S3 Table -->
+        <!-- ===================== -->
+
+        <div class="table-card">
+
+            <h2>S3 Buckets</h2>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Bucket Name</th>
+                        <th>Created</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% if s3 %}
+
+                    {% for bucket in s3 %}
+
+                    <tr>
+
+                        <td>{{ bucket.bucket_name }}</td>
+                        <td>{{ bucket.created }}</td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="2">
+
+                            No Buckets Found</td>
+
+                    </tr>
+
+                {% endif %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+
+        <footer>
+
+            <p>
+
+                ☁ Cloud Auditor Pro • Built with Flask, Boto3 & AWS
+
+            </p>
+
+        </footer>
+
+    </main>
+
+</div>
+
+
+
+<script>
+
+const resourceCtx = document.getElementById("resourceChart");
+
+const resourceData = ('{{ [ec2_count, ebs_count, eips_count, s3_count] | tojson }}');
+
+new Chart(resourceCtx, {
+    type: "bar",
+
+    data: {
+        labels: ["EC2", "EBS", "Elastic IP", "S3"],
+
+        datasets: [{
+            label: "AWS Resources",
+
+            data: resourceData,
+
+            backgroundColor: [
+                "#3b82f6",
+                "#22c55e",
+                "#f59e0b",
+                "#8b5cf6"
+            ],
+
+            borderRadius: 8
+        }]
+    },
+
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+
+
+const costCtx = document.getElementById("costChart");
+
+const costData = JSON.parse('{{ [cost.ebs_cost, cost.eip_cost, cost.ec2_cost] | tojson | safe }}');
+new Chart(costCtx, {
+
+    type: "doughnut",
+
+    data: {
+
+        labels: [
+            "EBS",
+            "Elastic IP",
+            "EC2"
+        ],
+
+        datasets: [{
+
+            data: costData,
+
+            backgroundColor: [
+                "#16a34a",
+                "#f59e0b",
+                "#2563eb"
+            ]
+
+        }]
+
+    },
+
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+
+});
+
+
+
+document.getElementById("darkMode").addEventListener("click", function () {
+    document.body.classList.toggle("dark");
+});
+
+
+
+document.getElementById("refreshBtn").addEventListener("click", function () {
+    location.reload();
+});
+
+</script>

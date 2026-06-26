@@ -2,5 +2,8 @@
     "unused_ebs_volumes": 0,
     "unused_elastic_ips": 0,
     "idle_ec2_instances": 2,
-    "estimated_monthly_savings": "$120"
+    "ebs_monthly_cost": 0,
+    "eip_monthly_cost": 0,
+    "ec2_monthly_cost": 30,
+    "estimated_monthly_savings": 30
 }
