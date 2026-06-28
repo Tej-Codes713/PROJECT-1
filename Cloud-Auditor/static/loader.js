@@ -20,8 +20,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (index >= steps.length) {
 
-            loadingScreen.style.display = "none";
-            dashboard.style.display = "block";
+            loadingScreen.style.opacity = "0";
+
+setTimeout(() => {
+
+    loadingScreen.style.display = "none";
+
+    dashboard.style.display = "block";
+
+}, 400);
 
             return;
         }
@@ -32,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         index++;
 
-        setTimeout(nextStep, 500);
+        setTimeout(nextStep, 700);
 
     }
 

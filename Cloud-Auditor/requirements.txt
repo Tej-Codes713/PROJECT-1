@@ -1,4 +1,5 @@
-typer
-rich
-pytest
+Flask
 boto3
+botocore
+rich
+typer

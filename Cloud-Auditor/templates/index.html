@@ -20,6 +20,38 @@
 
 <body>
 
+<!-- ===================================== -->
+<!-- Loading Screen -->
+<!-- ===================================== -->
+
+<div id="loading-screen">
+
+    <div class="loader-card">
+
+        <h1>☁️ Cloud Auditor</h1>
+
+        <h3 id="status-text">
+
+            Initializing Scan...
+
+        </h3>
+
+        <div class="progress-container">
+
+            <div id="progress-bar"></div>
+
+        </div>
+
+        <h2 id="progress-text">
+
+            0%
+
+        </h2>
+
+    </div>
+
+</div>
+
 <div class="sidebar">
 
     <h2>☁ Cloud Auditor</h2>
@@ -195,6 +227,8 @@
     </form>
 
 </div>
+
+<div id="dashboard-content">
 
 <div class="container" id="dashboard">
 
@@ -1067,9 +1101,20 @@ links.forEach(link => {
 
 console.log("Cloud Auditor Dashboard Loaded Successfully.");
 
+
+</script>
+
+</div>
+
+</body>
+
 console.log("Last Scan: {{ last_scan }}");
 
 </script>
+
+</div>
+
+<script src="{{ url_for('static', filename='loader.js') }}"></script>
 
 </div>
 
