@@ -1,0 +1,3 @@
+from recommendations.cost_prediction import predict_next_month_cost
+
+print(predict_next_month_cost())

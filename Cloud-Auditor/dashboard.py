@@ -1,148 +1,156 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template
+from datetime import datetime
 
 from scanners.ec2_scanner import scan_ec2
 from scanners.ebs_scanner import scan_ebs
 from scanners.eip_scanner import scan_eips
 from scanners.s3_scanner import scan_s3
+from scanners.iam_scanner import scan_iam
 
 from reports.cost_calculator import estimate_cost
+from recommendations.ai_recommendations import generate_ai_recommendations
+from recommendations.risk_score import calculate_risk_score
+from recommendations.cost_prediction import predict_next_month_cost
+from recommendations.executive_dashboard import executive_dashboard
+from flask import request
+from recommendations.natural_language import process_query
+from recommendations.region_summary import build_region_summary
+from recommendations.top_resources import get_top_costly_resources
+from history.history_manager import save_scan, load_history
+from recommendations.security_center import security_center
+from recommendations.region_cost import region_cost_breakdown
 
-from datetime import datetime
 
 app = Flask(__name__)
 
 
-def _safe_scan(scanner_func, default=None):
-    """Run a scanner and fall back to an empty list if AWS access fails."""
-    try:
-        result = scanner_func()
-        return result if result is not None else (default or [])
-    except Exception as exc:
-        print(f"Scanner error in {scanner_func.__name__}: {exc}")
-        return default or []
+@app.route("/")
+def home():
 
+    # ===============================
+    # AWS Scanners
+    # ===============================
 
-def get_dashboard_data():
-    """
-    Collect all cloud resource data.
-    """
+    ec2 = scan_ec2()
+    ebs = scan_ebs()
+    eips = scan_eips()
+    s3 = scan_s3()
+    iam = scan_iam()
 
-    ec2 = _safe_scan(scan_ec2, [])
-    ebs = _safe_scan(scan_ebs, [])
-    eips = _safe_scan(scan_eips, [])
-    s3 = _safe_scan(scan_s3, [])
+    region_summary = build_region_summary(
+    ec2,
+    ebs,
+    eips,
+    s3,
+    iam
+)
+    
+    # ===============================
+    # Cost
+    # ===============================
 
     cost = estimate_cost(ebs, eips, ec2)
 
-    health_score = max(
-        0,
-        100 - (
-            len(ebs) * 10 +
-            len(eips) * 5 +
-            len(ec2) * 3
-        )
-    )
+    # ===============================
+    # AI Recommendations
+    # ===============================
+
+    ai = generate_ai_recommendations()
+    risk = calculate_risk_score()
+    prediction = predict_next_month_cost()
+    dashboard = executive_dashboard(
+    ec2,
+    ebs,
+    eips,
+    s3,
+    iam
+)
+    top_resources = get_top_costly_resources()
+    security = security_center()
+    region_cost = region_cost_breakdown()
+
+    # ===============================
+    # Health Score
+    # ===============================
+
+    issues = len(ec2) + len(ebs) + len(eips)
+
+    health_score = max(100 - (issues * 5), 50)
 
     if health_score >= 90:
         health_status = "Excellent"
-        health_color = "green"
 
-    elif health_score >= 70:
+    elif health_score >= 75:
         health_status = "Good"
-        health_color = "orange"
 
     else:
         health_status = "Needs Attention"
-        health_color = "red"
 
-    return {
-        "ec2": ec2,
-        "ebs": ebs,
-        "eips": eips,
-        "s3": s3,
-        "cost": cost,
+    # =====================================
+    # Scan History
+    # =====================================
 
-        "ec2_count": len(ec2),
-        "ebs_count": len(ebs),
-        "eips_count": len(eips),
-        "s3_count": len(s3),
+    report = {
 
-        "health_score": health_score,
-        "health_status": health_status,
-        "health_color": health_color,
+        "resources": dashboard["total_resources"],
 
-        "last_scan": datetime.now().strftime("%d %b %Y  %I:%M:%S %p")
+        "monthly_savings": dashboard["monthly_savings"],
+
+        "health": health_score
+
     }
 
+    save_scan(report)
 
-@app.route("/")
-def dashboard():
+    history = load_history()
 
-    data = get_dashboard_data()
+    # ===============================
+    # Last Scan
+    # ===============================
+
+    last_scan = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+
+    query = request.args.get("search", "")
+    selected = process_query(query)
 
     return render_template(
+
         "index.html",
-        **data
+
+        ec2=ec2,
+        ebs=ebs,
+        eips=eips,
+        s3=s3,
+        iam=iam,
+
+        ec2_count=len(ec2),
+        ebs_count=len(ebs),
+        eips_count=len(eips),
+        s3_count=len(s3),
+        iam_count=len(iam),
+
+        cost=cost,
+        region_cost=region_cost,
+
+        ai=ai,
+        prediction=prediction,
+        risk=risk,
+        dashboard=dashboard,
+        region_summary=region_summary,
+        top_resources=top_resources,
+       
+        history=history,
+        security=security,
+
+        health_score=health_score,
+        health_status=health_status,
+
+        query=query,
+        selected=selected,
+        last_scan=last_scan
+
     )
-
-
-@app.route("/refresh")
-def refresh():
-
-    """
-    Returns fresh scan data for JavaScript.
-    """
-
-    data = get_dashboard_data()
-
-    return jsonify({
-        "ec2_count": data["ec2_count"],
-        "ebs_count": data["ebs_count"],
-        "eips_count": data["eips_count"],
-        "s3_count": data["s3_count"],
-
-        "health_score": data["health_score"],
-        "health_status": data["health_status"],
-
-        "estimated_savings": data["cost"]["total"],
-
-        "last_scan": data["last_scan"]
-    })
-
-
-@app.route("/api/chart")
-def chart_data():
-
-    """
-    Chart.js data endpoint.
-    """
-
-    data = get_dashboard_data()
-
-    return jsonify({
-
-        "labels": [
-            "EC2",
-            "EBS",
-            "Elastic IP",
-            "S3"
-        ],
-
-        "values": [
-
-            data["ec2_count"],
-            data["ebs_count"],
-            data["eips_count"],
-            data["s3_count"]
-
-        ]
-    })
 
 
 if __name__ == "__main__":
-
-    app.run(
-        debug=True,
-        host="0.0.0.0",
-        port=5000
-    )
+    app.run(debug=True, port=1234)
