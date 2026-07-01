@@ -1,5 +1,6 @@
 import boto3
 from datetime import datetime, timedelta
+from botocore.exceptions import ClientError
 
 from scanners.regions import REGIONS
 
@@ -9,10 +10,15 @@ def scan_ec2():
     instances = []
 
     for region in REGIONS:
-        ec2 = boto3.client("ec2", region_name=region)
-        cloudwatch = boto3.client("cloudwatch", region_name=region)
-
-        response = ec2.describe_instances()
+        try:
+            ec2 = boto3.client("ec2", region_name=region)
+            cloudwatch = boto3.client("cloudwatch", region_name=region)
+            response = ec2.describe_instances()
+        except ClientError as exc:
+            if exc.response.get("Error", {}).get("Code") == "AuthFailure":
+                print(f"Skipping EC2 scan in {region}: AWS credentials are not configured correctly.")
+                continue
+            raise
 
         for reservation in response.get("Reservations", []):
             for instance in reservation.get("Instances", []):
@@ -20,20 +26,26 @@ def scan_ec2():
                 if not instance_id:
                     continue
 
-                metrics = cloudwatch.get_metric_statistics(
-                    Namespace="AWS/EC2",
-                    MetricName="CPUUtilization",
-                    Dimensions=[
-                        {
-                            "Name": "InstanceId",
-                            "Value": instance_id,
-                        }
-                    ],
-                    StartTime=datetime.utcnow() - timedelta(hours=1),
-                    EndTime=datetime.utcnow(),
-                    Period=300,
-                    Statistics=["Average"],
-                )
+                try:
+                    metrics = cloudwatch.get_metric_statistics(
+                        Namespace="AWS/EC2",
+                        MetricName="CPUUtilization",
+                        Dimensions=[
+                            {
+                                "Name": "InstanceId",
+                                "Value": instance_id,
+                            }
+                        ],
+                        StartTime=datetime.utcnow() - timedelta(hours=1),
+                        EndTime=datetime.utcnow(),
+                        Period=300,
+                        Statistics=["Average"],
+                    )
+                except ClientError as exc:
+                    if exc.response.get("Error", {}).get("Code") == "AuthFailure":
+                        print(f"Skipping EC2 metrics for {instance_id} in {region}: AWS credentials are not configured correctly.")
+                        continue
+                    raise
 
                 datapoints = metrics.get("Datapoints", [])
                 cpu = round(datapoints[-1]["Average"], 2) if datapoints else 0
