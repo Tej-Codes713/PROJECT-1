@@ -1,0 +1,9 @@
+gunicorn
+Flask
+boto3
+botocore
+rich
+typer
+click
+python-dotenv
+pandas

@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cloud Auditor Dashboard</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+</head>
+
+<body>
+
+<!-- ===================================== -->
+<!-- Loading Screen -->
+<!-- ===================================== -->
+
+<div id="loading-screen">
+
+    <div class="loader-card">
+
+        <h1>☁️ Cloud Auditor</h1>
+
+        <h3 id="status-text">
+
+            Initializing Scan...
+
+        </h3>
+
+        <div class="progress-container">
+
+            <div id="progress-bar"></div>
+
+        </div>
+
+        <h2 id="progress-text">
+
+            0%
+
+        </h2>
+
+    </div>
+
+</div>
+
+<div class="sidebar">
+
+    <h2>☁ Cloud Auditor</h2>
+
+    <ul>
+
+        <li><a href="#dashboard"><i class="fa fa-chart-line"></i> Dashboard</a></li>
+
+        <li><a href="#charts"><i class="fa fa-chart-pie"></i> Charts</a></li>
+
+        <li><a href="#ec2"><i class="fa fa-server"></i> EC2</a></li>
+
+        <li><a href="#ebs"><i class="fa fa-hard-drive"></i> EBS</a></li>
+
+        <li><a href="#eips"><i class="fa fa-network-wired"></i> Elastic IP</a></li>
+
+        <li><a href="#s3"><i class="fa fa-database"></i> S3</a></li>
+
+        <li><a href="#iam"><i class="fa fa-users"></i> IAM</a></li>
+
+    </ul>
+
+</div>
+
+<div class="main-content">
+
+<header class="navbar">
+
+    <div>
+
+        <h1>☁ Cloud Infrastructure Auditor</h1>
+
+        <p>AWS Monitoring & Cost Optimization Dashboard</p>
+
+    </div>
+
+    <div class="top-buttons">
+
+        <button id="darkMode">
+            🌙 Dark Mode
+        </button>
+
+        <button id="refreshBtn">
+            🔄 Refresh
+        </button>
+
+        <a href="/static/report.json" download>
+
+            <button>
+
+                📥 JSON
+
+            </button>
+
+        </a>
+
+        <a href="/static/report.csv" download>
+
+            <button>
+
+                📥 CSV
+
+            </button>
+
+        </a>
+
+    </div>
+
+</header>
+
+<div class="executive-dashboard">
+
+    <div class="executive-card">
+
+        <h4>Total Resources</h4>
+
+        <h1>{{ dashboard.total_resources }}</h1>
+
+    </div>
+
+    <div class="executive-card">
+
+        <h4>Monthly Savings</h4>
+
+        <h1>${{ dashboard.monthly_savings }}</h1>
+
+    </div>
+
+    <div class="executive-card">
+
+        <h4>Predicted Cost</h4>
+
+        <h1>${{ dashboard.predicted_cost }}</h1>
+
+    </div>
+
+    <div class="executive-card">
+
+        <h4>Risk Score</h4>
+
+        <h1>{{ dashboard.risk_score }}/10</h1>
+
+        <p>{{ dashboard.risk_level }}</p>
+
+    </div>
+
+</div>
+
+<!-- ========================================= -->
+<!-- Region Overview -->
+<!-- ========================================= -->
+
+<div class="section">
+
+    <h2>🌍 AWS Region Overview</h2>
+
+    <div class="region-grid">
+
+        {% for region, data in region_summary.items() %}
+
+        <div class="region-card">
+
+            <div class="region-header">
+
+                <h3>📍 {{ region }}</h3>
+
+                {% if data.status == "Healthy" %}
+
+                    <span class="badge success">🟢 Healthy</span>
+
+                {% elif data.status == "Needs Attention" %}
+
+                    <span class="badge warning">🟡 Needs Attention</span>
+
+                {% else %}
+
+                    <span class="badge danger">🔴 Critical</span>
+
+                {% endif %}
+
+            </div>
+
+            <div class="region-content">
+
+                <p><strong>🖥 EC2 :</strong> {{ data.ec2 }}</p>
+
+                <p><strong>💾 EBS :</strong> {{ data.ebs }}</p>
+
+                <p><strong>🌐 Elastic IP :</strong> {{ data.eips }}</p>
+
+                <p><strong>🪣 S3 :</strong> {{ data.s3 }}</p>
+
+                <p><strong>👤 IAM :</strong> {{ data.iam }}</p>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+<div class="search-box">
+
+    <form method="get" action="/">
+
+        <input type="text" name="search" placeholder="Search EC2, EBS, S3, IAM..." value="{{ query }}">
+
+        <button type="submit">Search</button>
+
+    </form>
+
+</div>
+
+<div id="dashboard-content">
+
+<div class="container" id="dashboard">
+
+<div class="cards">
+
+<div class="card">
+
+<h3>🖥 EC2</h3>
+
+<h2>{{ ec2_count }}</h2>
+
+</div>
+
+<div class="card">
+
+<h3>💾 EBS</h3>
+
+<h2>{{ ebs_count }}</h2>
+
+</div>
+
+<div class="card">
+
+<h3>🌐 Elastic IP</h3>
+
+<h2>{{ eips_count }}</h2>
+
+</div>
+
+<div class="card">
+
+<h3>🪣 S3</h3>
+
+<h2>{{ s3_count }}</h2>
+
+</div>
+
+<div class="card">
+
+<h3>👤 IAM Users</h3>
+
+<h2>{{ iam_count }}</h2>
+
+</div>
+
+<div class="card savings">
+
+<h3>💰 Savings</h3>
+
+<h2>${{ cost.total }}</h2>
+
+<p>per month</p>
+
+</div>
+
+<div class="card health">
+
+<h3>🟢 Health Score</h3>
+
+<h2>{{ health_score }}%</h2>
+
+<p>{{ health_status }}</p>
+
+</div>
+
+<div class="card">
+
+<h3>🕒 Last Scan</h3>
+
+<h4>{{ last_scan }}</h4>
+
+</div>
+
+</div>
+
+<!-- ================= Charts Section ================= -->
+
+<div class="section" id="charts">
+
+    <h2>📊 AWS Resource Overview</h2>
+
+    <div class="chart-grid">
+
+        <div class="chart-card">
+
+            <canvas id="resourceChart"
+                    data-counts='{{ [ec2_count, ebs_count, eips_count, s3_count, iam_count] | tojson }}'></canvas>
+
+        </div>
+
+        <div class="chart-card">
+
+            <canvas id="costChart"
+                    data-costs='{{ [cost.ebs_cost, cost.eip_cost, cost.ec2_cost] | tojson }}'></canvas>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ================= Health Panel ================= -->
+
+<div class="section">
+
+    <h2>☁ Cloud Health</h2>
+
+    <div class="health-panel">
+
+        {% if health_score >= 90 %}
+
+        <span class="badge success">
+
+            🟢 Excellent
+
+        </span>
+
+        {% elif health_score >= 75 %}
+
+        <span class="badge warning">
+
+            🟡 Good
+
+        </span>
+
+        {% else %}
+
+        <span class="badge danger">
+
+            🔴 Needs Attention
+
+        </span>
+
+        {% endif %}
+
+        <div class="health-info">
+
+            <h1>{{ health_score }}%</h1>
+
+            <p>{{ health_status }}</p>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ================= AI Recommendations ================= -->
+
+<div class="section">
+
+    <h2>🤖 AI Recommendations</h2>
+
+    <div class="recommendation-summary">
+
+        <p>{{ ai.summary }}</p>
+
+        <p><strong>Estimated Savings:</strong> ${{ ai.total_savings }}/month</p>
+
+    </div>
+
+    <div class="table-card">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Resource</th>
+                    <th>ID</th>
+                    <th>Recommendation</th>
+                    <th>Reason</th>
+                    <th>Savings</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+            {% for item in ai.recommendations %}
+
+                <tr>
+
+                    <td>{{ item.resource }}</td>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.action }}</td>
+                    <td>{{ item.reason }}</td>
+                    <td>${{ item.estimated_savings }}/month</td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<!-- ================= Live Statistics ================= -->
+
+<div class="section">
+
+    <h2>📈 Live Statistics</h2>
+
+    <div class="stats-grid">
+
+        <div class="stat-box">
+
+            <h3>Total Resources</h3>
+
+            <h1>
+
+                {{ ec2_count + ebs_count + eips_count + s3_count + iam_count }}
+
+            </h1>
+
+        </div>
+
+        <div class="stat-box">
+
+            <h3>Estimated Savings</h3>
+
+            <h1>
+
+                ${{ cost.total }}
+
+            </h1>
+
+        </div>
+
+        <div class="stat-box">
+
+            <h3>Regions Scanned</h3>
+
+            <h1>4</h1>
+
+        </div>
+
+        <div class="stat-box">
+
+            <h3>Scan Status</h3>
+
+            <span class="badge success">
+
+                ✔ Completed
+
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ================= EC2 ================= -->
+
+{% if selected in ["all","ec2"] %}
+
+<div class="section" id="ec2">
+
+    <h2>🖥 EC2 Instances</h2>
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>Instance ID</th>
+                <th>CPU Usage</th>
+                <th>Region</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% if ec2 %}
+
+            {% for instance in ec2 %}
+
+            <tr>
+
+                <td>{{ instance.instance_id }}</td>
+
+                <td>
+
+                    {% set cpu = instance.cpu_usage.replace('%','')|float %}
+
+                    {% if cpu < 5 %}
+
+                        <span class="badge danger">{{ instance.cpu_usage }}</span>
+
+                    {% elif cpu < 20 %}
+
+                        <span class="badge warning">{{ instance.cpu_usage }}</span>
+
+                    {% else %}
+
+                        <span class="badge success">{{ instance.cpu_usage }}</span>
+
+                    {% endif %}
+
+                </td>
+
+                <td>{{ instance.region }}</td>
+
+            </tr>
+
+            {% endfor %}
+
+        {% else %}
+
+            <tr>
+
+                <td colspan="3">No EC2 Instances Found</td>
+
+            </tr>
+
+        {% endif %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endif %}
+
+<!-- ================= EBS ================= -->
+
+{% if selected in ["all","ebs"] %}
+
+<div class="section" id="ebs">
+
+    <h2>💾 Unused EBS Volumes</h2>
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>Volume ID</th>
+                <th>Size (GB)</th>
+                <th>Region</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% if ebs %}
+
+            {% for volume in ebs %}
+
+            <tr>
+
+                <td>{{ volume.volume_id }}</td>
+
+                <td>{{ volume.size }}</td>
+
+                <td>{{ volume.region }}</td>
+
+            </tr>
+
+            {% endfor %}
+
+        {% else %}
+
+            <tr>
+
+                <td colspan="3">
+
+                    No Unused EBS Volumes
+
+                </td>
+
+            </tr>
+
+        {% endif %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endif %}
+
+<!-- ================= Elastic IP ================= -->
+
+{% if selected in ["all","eips"] %}
+
+<div class="section" id="eips">
+
+    <h2>🌐 Unused Elastic IPs</h2>
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>Public IP</th>
+                <th>Region</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% if eips %}
+
+            {% for ip in eips %}
+
+            <tr>
+
+                <td>{{ ip.ip }}</td>
+
+                <td>{{ ip.region }}</td>
+
+            </tr>
+
+            {% endfor %}
+
+        {% else %}
+
+            <tr>
+
+                <td colspan="2">
+
+                    No Unused Elastic IPs
+
+                </td>
+
+            </tr>
+
+        {% endif %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endif %}
+
+<!-- ================= S3 ================= -->
+
+{% if selected in ["all","s3"] %}
+
+<div class="section" id="s3">
+
+    <h2>🪣 S3 Buckets</h2>
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>Bucket Name</th>
+                <th>Created</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% if s3 %}
+
+            {% for bucket in s3 %}
+
+            <tr>
+
+                <td>{{ bucket.bucket_name }}</td>
+
+                <td>{{ bucket.created }}</td>
+
+            </tr>
+
+            {% endfor %}
+
+        {% else %}
+
+            <tr>
+
+                <td colspan="2">
+
+                    No S3 Buckets Found
+
+                </td>
+
+            </tr>
+
+        {% endif %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endif %}
+
+<!-- ================= IAM ================= -->
+
+{% if selected in ["all","iam"] %}
+
+<div class="section" id="iam">
+
+    <h2>👤 IAM Users</h2>
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>User Name</th>
+                <th>Created</th>
+                <th>Console Login</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% if iam %}
+
+            {% for user in iam %}
+
+            <tr>
+
+                <td>{{ user.user_name }}</td>
+
+                <td>{{ user.created }}</td>
+
+                <td>
+
+                    {% if user.console_login == "Yes" %}
+
+                        <span class="badge success">
+
+                            Enabled
+
+                        </span>
+
+                    {% else %}
+
+                        <span class="badge warning">
+
+                            Disabled
+
+                        </span>
+
+                    {% endif %}
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        {% else %}
+
+            <tr>
+
+                <td colspan="3">
+
+                    No IAM Users Found
+
+                </td>
+
+            </tr>
+
+        {% endif %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endif %}
+
+<footer>
+
+    Cloud Auditor © 2026
+
+    <br>
+
+    Built with Flask • Boto3 • Rich • AWS
+
+</footer>
+
+
+<script>
+
+// ==============================
+// Resource Bar Chart
+// ==============================
+
+const resourceCtx = document.getElementById("resourceChart");
+const resourceCounts = JSON.parse(resourceCtx.getAttribute("data-counts") || "[]");
+
+new Chart(resourceCtx, {
+    type: "bar",
+
+    data: {
+        labels: [
+            "EC2",
+            "EBS",
+            "Elastic IP",
+            "S3",
+            "IAM"
+        ],
+
+        datasets: [{
+            label: "AWS Resources",
+
+            data: resourceCounts,
+
+            backgroundColor: [
+                "#2563eb",
+                "#22c55e",
+                "#f59e0b",
+                "#8b5cf6",
+                "#ef4444"
+            ],
+
+            borderRadius: 8
+        }]
+    },
+
+    options: {
+
+        responsive: true,
+
+        animation: {
+            duration: 1500
+        },
+
+        plugins: {
+
+            legend: {
+
+                display: false
+
+            }
+
+        },
+
+        scales: {
+
+            y: {
+
+                beginAtZero: true
+
+            }
+
+        }
+
+    }
+
+});
+
+
+
+// ==============================
+// Cost Doughnut Chart
+// ==============================
+
+const costCtx = document.getElementById("costChart");
+const costBreakdown = JSON.parse(costCtx.getAttribute("data-costs") || "[]");
+
+new Chart(costCtx, {
+
+    type: "doughnut",
+
+    data: {
+
+        labels: [
+            "EBS",
+            "Elastic IP",
+            "EC2"
+        ],
+
+        datasets: [{
+
+            data: costBreakdown,
+
+            backgroundColor: [
+                "#22c55e",
+                "#f59e0b",
+                "#2563eb"
+            ],
+
+            hoverOffset: 15
+
+        }]
+
+    },
+
+    options: {
+
+        responsive: true,
+
+        animation: {
+
+            animateRotate: true,
+
+            duration: 1800
+
+        }
+
+    }
+
+});
+
+
+// ==============================
+// Region Cost Bar Chart
+// ==============================
+
+const regionCtx = document.getElementById("regionCostChart");
+const regionCostData = JSON.parse(regionCtx.getAttribute("data-region-cost") || "{}");
+const regionLabels = Object.keys(regionCostData);
+const regionValues = Object.values(regionCostData);
+
+new Chart(regionCtx, {
+
+    type: "bar",
+
+    data: {
+
+        labels: regionLabels,
+
+        datasets: [{
+
+            label: "Estimated Monthly Cost ($)",
+
+            data: regionValues,
+
+            backgroundColor: "#3b82f6",
+
+            borderRadius: 8
+
+        }]
+
+    },
+
+    options: {
+
+        responsive: true,
+
+        plugins: {
+
+            legend: {
+
+                display: false
+
+            }
+
+        },
+
+        scales: {
+
+            y: {
+
+                beginAtZero: true
+
+            }
+
+        }
+
+    }
+
+});
+
+
+// ==============================
+// Dark Mode Toggle
+// ==============================
+
+const darkBtn = document.getElementById("darkMode");
+
+darkBtn.addEventListener("click", function () {
+
+    document.body.classList.toggle("dark-mode");
+
+});
+
+
+
+// ==============================
+// Refresh Button
+// ==============================
+
+const refreshBtn = document.getElementById("refreshBtn");
+
+refreshBtn.addEventListener("click", function () {
+
+    location.reload();
+
+});
+
+
+
+// ==============================
+// Animated Cards
+// ==============================
+
+const cards = document.querySelectorAll(".card");
+
+cards.forEach((card, index) => {
+
+    card.style.opacity = "0";
+
+    card.style.transform = "translateY(20px)";
+
+    setTimeout(() => {
+
+        card.style.transition = "all 0.5s ease";
+
+        card.style.opacity = "1";
+
+        card.style.transform = "translateY(0px)";
+
+    }, index * 120);
+
+});
+
+
+
+// ==============================
+// Highlight Active Sidebar Link
+// ==============================
+
+const links = document.querySelectorAll(".sidebar a");
+
+links.forEach(link => {
+
+    link.addEventListener("click", function () {
+
+        links.forEach(l => l.classList.remove("active"));
+
+        this.classList.add("active");
+
+    });
+
+});
+
+
+
+// ==============================
+// Last Scan Console Message
+// ==============================
+
+console.log("Cloud Auditor Dashboard Loaded Successfully.");
+
+
+</script>
+
+</div>
+
+</body>
+
+console.log("Last Scan: {{ last_scan }}");
+
+</script>
+
+</div>
+
+<script src="{{ url_for('static', filename='loader.js') }}"></script>
+
+</div>
+
+</body>
+
+</html>
+
+
+<div class="section">
+
+    <h2>🛡 AI Security Risk Analysis</h2>
+
+    <div class="risk-card">
+
+        <h1>{{ risk.score }}/10</h1>
+
+        {% if risk.level == "LOW" %}
+
+            <span class="badge success">
+                LOW RISK
+            </span>
+
+        {% elif risk.level == "MEDIUM" %}
+
+            <span class="badge warning">
+                MEDIUM RISK
+            </span>
+
+        {% else %}
+
+            <span class="badge danger">
+                HIGH RISK
+            </span>
+
+        {% endif %}
+
+        <br><br>
+
+        {% if risk.issues %}
+
+            <ul>
+
+                {% for issue in risk.issues %}
+
+                    <li>{{ issue }}</li>
+
+                {% endfor %}
+
+            </ul>
+
+        {% else %}
+
+            <p>No major security risks detected.</p>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+<div class="section">
+
+    <h2>📈 AI Cost Prediction</h2>
+
+    <div class="prediction-card">
+
+        <div class="prediction-grid">
+
+            <div>
+
+                <h3>Current Monthly Cost</h3>
+
+                <h1>${{ prediction.current }}</h1>
+
+            </div>
+
+            <div>
+
+                <h3>Predicted Next Month</h3>
+
+                <h1>${{ prediction.predicted }}</h1>
+
+            </div>
+
+            <div>
+
+                <h3>Difference</h3>
+
+                <h1>${{ prediction.difference }}</h1>
+
+            </div>
+
+            <div>
+
+                <h3>Trend</h3>
+
+                {% if prediction.trend == "Increase" %}
+
+                <span class="badge warning">
+
+                    ⬆ {{ prediction.trend }}
+
+                </span>
+
+                {% elif prediction.trend == "Decrease" %}
+
+                <span class="badge success">
+
+                    ⬇ {{ prediction.trend }}
+
+                </span>
+
+                {% else %}
+
+                <span class="badge">
+
+                    ➜ Stable
+
+                </span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ========================================= -->
+<!-- Top Costly Resources -->
+<!-- ========================================= -->
+
+<div class="section">
+
+    <h2>🏆 Top Costly Resources</h2>
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>Rank</th>
+                <th>Resource</th>
+                <th>ID</th>
+                <th>Region</th>
+                <th>Estimated Monthly Cost</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for resource in top_resources %}
+
+            <tr>
+
+                <td>
+
+                    {% if loop.index == 1 %}
+                        🥇
+                    {% elif loop.index == 2 %}
+                        🥈
+                    {% elif loop.index == 3 %}
+                        🥉
+                    {% else %}
+                        {{ loop.index }}
+                    {% endif %}
+
+                </td>
+
+                <td>{{ resource.type }}</td>
+
+                <td>{{ resource.id }}</td>
+
+                <td>{{ resource.region }}</td>
+
+                <td>
+
+                    <span class="cost-badge">
+
+                        ${{ resource.monthly_cost }}/month
+
+                    </span>
+
+                </td>
+
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<!-- ===================================== -->
+<!-- Scan History -->
+<!-- ===================================== -->
+
+<div class="section">
+
+    <h2>📜 Scan History</h2>
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>Date & Time</th>
+
+                <th>Total Resources</th>
+
+                <th>Monthly Savings</th>
+
+                <th>Health Score</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for item in history %}
+
+            <tr>
+
+                <td>{{ item.time }}</td>
+
+                <td>{{ item.resources }}</td>
+
+                <td>
+
+                    <span class="history-saving">
+
+                        ${{ item.monthly_savings }}
+
+                    </span>
+
+                </td>
+
+                <td>
+
+                    {% if item.health >= 90 %}
+
+                        <span class="badge success">
+
+                            {{ item.health }}%
+
+                        </span>
+
+                    {% elif item.health >= 75 %}
+
+                        <span class="badge warning">
+
+                            {{ item.health }}%
+
+                        </span>
+
+                    {% else %}
+
+                        <span class="badge danger">
+
+                            {{ item.health }}%
+
+                        </span>
+
+                    {% endif %}
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<!-- ===================================== -->
+<!-- Security Center -->
+<!-- ===================================== -->
+
+<div class="section">
+
+    <h2>🛡 Security Center</h2>
+
+    <div class="security-grid">
+
+        {% for item in security.findings %}
+
+        <div class="security-card">
+
+            <h3>{{ item.title }}</h3>
+
+            <h1>{{ item.count }}</h1>
+
+            {% if item.status == "Good" %}
+
+                <span class="badge success">
+
+                    Good
+
+                </span>
+
+            {% elif item.status == "Warning" %}
+
+                <span class="badge danger">
+
+                    Warning
+
+                </span>
+
+            {% else %}
+
+                <span class="badge">
+
+                    Info
+
+                </span>
+
+            {% endif %}
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    <br>
+
+    <h3>🔐 Security Recommendations</h3>
+
+    <ul class="recommend-list">
+
+        {% for recommendation in security.recommendations %}
+
+            <li>✅ {{ recommendation }}</li>
+
+        {% endfor %}
+
+    </ul>
+
+</div>
+
+<!-- ===================================== -->
+<!-- Region Cost Breakdown -->
+<!-- ===================================== -->
+
+<div class="section">
+
+    <h2>🌍 Region-wise Cost Breakdown</h2>
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>AWS Region</th>
+
+                <th>Estimated Monthly Cost</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for region, amount in region_cost.items() %}
+
+            <tr>
+
+                <td>{{ region }}</td>
+
+                <td>
+
+                    <span class="cost-badge">
+
+                        ${{ amount }}/month
+
+                    </span>
+
+                </td>
+
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+    <br>
+
+    <canvas id="regionCostChart" data-region-cost='{{ region_cost | tojson }}'></canvas>
+
+</div>

@@ -1,0 +1,35 @@
+{
+    "unused_ebs_volumes": 0,
+    "unused_elastic_ips": 0,
+    "idle_ec2_instances": 2,
+    "s3_buckets": 0,
+    "iam_users": 1,
+    "ebs_monthly_cost": 0,
+    "eip_monthly_cost": 0,
+    "ec2_monthly_cost": 30,
+    "estimated_monthly_savings": 30,
+    "resources": {
+        "ebs": [],
+        "elastic_ips": [],
+        "ec2_instances": [
+            {
+                "instance_id": "i-09f9ae61f513241b7",
+                "cpu_usage": "0.21%",
+                "region": "eu-north-1"
+            },
+            {
+                "instance_id": "i-0b50325988ca3ad59",
+                "cpu_usage": "0.22%",
+                "region": "eu-north-1"
+            }
+        ],
+        "s3_buckets": [],
+        "iam_users": [
+            {
+                "user_name": "cloud-auditor",
+                "created": "2026-06-25",
+                "console_login": "Yes"
+            }
+        ]
+    }
+}

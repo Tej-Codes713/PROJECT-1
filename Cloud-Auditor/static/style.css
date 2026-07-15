@@ -1,0 +1,1982 @@
+/* ===========================================
+   CLOUD AUDITOR DASHBOARD
+   PART 1
+   Global + Sidebar + Topbar + Cards
+=========================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+:root{
+
+    --primary:#2563eb;
+    --primary-dark:#1d4ed8;
+
+    --success:#16a34a;
+    --warning:#f59e0b;
+    --danger:#dc2626;
+
+    --background:#f1f5f9;
+
+    --card:#ffffff;
+
+    --text:#0f172a;
+
+    --text-light:#64748b;
+
+    --border:#e2e8f0;
+
+    --shadow:0 8px 24px rgba(0,0,0,.08);
+
+    --radius:18px;
+
+}
+
+body{
+
+    background:var(--background);
+
+    color:var(--text);
+
+    font-family:
+    Inter,
+    Segoe UI,
+    Arial,
+    sans-serif;
+
+}
+
+/* ==========================
+        LAYOUT
+========================== */
+
+.dashboard{
+
+    display:flex;
+
+    min-height:100vh;
+
+}
+
+/* ==========================
+        SIDEBAR
+========================== */
+
+.sidebar{
+
+    width:260px;
+
+    background:#0f172a;
+
+    color:white;
+
+    display:flex;
+
+    flex-direction:column;
+
+    position:fixed;
+
+    top:0;
+
+    left:0;
+
+    bottom:0;
+
+    padding:30px 20px;
+
+    overflow:auto;
+
+}
+
+.logo{
+
+    text-align:center;
+
+    margin-bottom:40px;
+
+}
+
+.logo h1{
+
+    font-size:30px;
+
+}
+
+.logo p{
+
+    margin-top:8px;
+
+    color:#94a3b8;
+
+}
+
+.menu{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:14px;
+
+}
+
+.menu a{
+
+    color:white;
+
+    text-decoration:none;
+
+    padding:15px 18px;
+
+    border-radius:12px;
+
+    transition:.30s;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+}
+
+.menu a:hover{
+
+    background:rgba(255,255,255,.12);
+
+    transform:translateX(6px);
+
+}
+
+.menu a.active{
+
+    background:var(--primary);
+
+}
+
+.sidebar-bottom{
+
+    margin-top:auto;
+
+    padding-top:30px;
+
+}
+
+/* ==========================
+        MAIN AREA
+========================== */
+
+.main{
+
+    margin-left:260px;
+
+    width:calc(100% - 260px);
+
+}
+
+/* ==========================
+        TOPBAR
+========================== */
+
+.topbar{
+
+    height:85px;
+
+    background:white;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:0 35px;
+
+    box-shadow:var(--shadow);
+
+}
+
+.topbar-left h2{
+
+    font-size:28px;
+
+}
+
+.topbar-left p{
+
+    color:var(--text-light);
+
+    margin-top:5px;
+
+}
+
+.topbar-right{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+}
+
+/* ==========================
+        BUTTONS
+========================== */
+
+.btn{
+
+    border:none;
+
+    padding:12px 22px;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    transition:.30s;
+
+    font-size:15px;
+
+    font-weight:600;
+
+}
+
+.btn-primary{
+
+    background:var(--primary);
+
+    color:white;
+
+}
+
+.btn-primary:hover{
+
+    background:var(--primary-dark);
+
+}
+
+.executive-dashboard{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+
+    gap:16px;
+
+    padding:20px 24px 0;
+
+}
+
+.executive-card{
+
+    background:white;
+
+    border-radius:12px;
+
+    padding:18px 20px;
+
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+
+}
+
+.executive-card h4{
+
+    color:#64748b;
+
+    margin-bottom:8px;
+
+}
+
+.executive-card h1{
+
+    color:#2563eb;
+
+    font-size:28px;
+
+}
+
+.dark-mode .executive-card{
+
+    background:#1e293b;
+
+    color:white;
+
+}
+
+.prediction-card{
+
+    background:#eff6ff;
+
+    padding:25px;
+
+    border-radius:12px;
+
+    border-left:6px solid #2563eb;
+
+}
+
+.dark-mode .prediction-card{
+
+    background:#172554;
+
+    color:white;
+
+}
+
+.prediction-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+    gap:20px;
+
+}
+
+.prediction-grid h1{
+
+    margin-top:10px;
+
+    color:#2563eb;
+
+}
+
+.recommendation-summary{
+
+    background:#ecfdf5;
+
+    padding:20px;
+
+    border-left:6px solid green;
+
+    border-radius:10px;
+
+    margin-bottom:20px;
+
+}
+
+.dark-mode .recommendation-summary{
+
+    background:#064e3b;
+
+    color:white;
+
+}
+
+.btn-success{
+
+    background:var(--success);
+
+    color:white;
+
+}
+
+.btn-success:hover{
+
+    transform:translateY(-2px);
+
+}
+
+.btn-dark{
+
+    background:#111827;
+
+    color:white;
+
+}
+
+.btn-dark:hover{
+
+    background:#1f2937;
+
+}
+
+/* ==========================
+        CONTENT
+========================== */
+
+.content{
+
+    padding:35px;
+
+}
+
+/* ==========================
+        CARDS
+========================== */
+
+.cards{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(auto-fit,minmax(220px,1fr));
+
+    gap:25px;
+
+}
+
+.card{
+
+    background:var(--card);
+
+    border-radius:var(--radius);
+
+    padding:30px;
+
+    box-shadow:var(--shadow);
+
+    transition:.35s;
+
+    position:relative;
+
+    overflow:hidden;
+
+}
+
+.card:hover{
+
+    transform:translateY(-8px);
+
+}
+
+.card::before{
+
+    content:"";
+
+    position:absolute;
+
+    left:0;
+
+    top:0;
+
+    width:7px;
+
+    height:100%;
+
+    background:var(--primary);
+
+}
+
+.card h4{
+
+    color:var(--text-light);
+
+    margin-bottom:18px;
+
+    font-size:17px;
+
+}
+
+.card h2{
+
+    font-size:42px;
+
+    font-weight:700;
+
+}
+
+.card span{
+
+    display:block;
+
+    margin-top:10px;
+
+    color:var(--text-light);
+
+}
+
+/* ==========================
+     CARD COLORS
+========================== */
+
+.card.ec2::before{
+
+    background:#2563eb;
+
+}
+
+.card.ebs::before{
+
+    background:#16a34a;
+
+}
+
+.card.eip::before{
+
+    background:#f59e0b;
+
+}
+
+.card.s3::before{
+
+    background:#7c3aed;
+
+}
+
+.card.cost::before{
+
+    background:#dc2626;
+
+}
+
+/* ==========================
+     STATUS BADGES
+========================== */
+
+.badge{
+
+    display:inline-block;
+
+    padding:6px 12px;
+
+    border-radius:30px;
+
+    font-size:13px;
+
+    font-weight:600;
+
+}
+
+.badge.good{
+
+    background:#dcfce7;
+
+    color:#166534;
+
+}
+
+.badge.warning{
+
+    background:#fef3c7;
+
+    color:#92400e;
+
+}
+
+.badge.danger{
+
+    background:#fee2e2;
+
+    color:#991b1b;
+
+}
+
+/* ==========================
+      SECTION TITLE
+========================== */
+
+.section-title{
+
+    margin-top:45px;
+
+    margin-bottom:18px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+}
+
+.section-title h2{
+
+    font-size:24px;
+
+}
+
+.section-title p{
+
+    color:var(--text-light);
+
+}
+
+/* ===========================================
+   CLOUD AUDITOR DASHBOARD
+   PART 2
+   Tables + Charts + Footer + Utilities
+=========================================== */
+
+/* ==========================
+      CHART SECTION
+========================== */
+
+.chart-grid{
+
+    display:grid;
+
+    grid-template-columns:2fr 1fr;
+
+    gap:25px;
+
+    margin-top:35px;
+
+}
+
+.chart-card{
+
+    background:white;
+
+    border-radius:18px;
+
+    padding:25px;
+
+    box-shadow:var(--shadow);
+
+}
+
+.chart-card h3{
+
+    margin-bottom:20px;
+
+    color:#1e293b;
+
+}
+
+.chart-card canvas{
+
+    width:100% !important;
+
+    height:320px !important;
+
+}
+
+/* ==========================
+      TABLE CARD
+========================== */
+
+.table-card{
+
+    margin-top:35px;
+
+    background:white;
+
+    border-radius:18px;
+
+    padding:25px;
+
+    box-shadow:var(--shadow);
+
+    overflow-x:auto;
+
+}
+
+.table-card h2{
+
+    margin-bottom:20px;
+
+    color:#1e293b;
+
+}
+
+/* ==========================
+      TABLE
+========================== */
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+thead{
+
+    background:#2563eb;
+
+    color:white;
+
+}
+
+thead th{
+
+    padding:16px;
+
+    text-align:left;
+
+    font-size:15px;
+
+}
+
+tbody td{
+
+    padding:15px;
+
+    border-bottom:1px solid #e5e7eb;
+
+    color:#334155;
+
+}
+
+tbody tr{
+
+    transition:.25s;
+
+}
+
+tbody tr:hover{
+
+    background:#eff6ff;
+
+}
+
+tbody tr:last-child td{
+
+    border-bottom:none;
+
+}
+
+/* ==========================
+      CPU BADGES
+========================== */
+
+.cpu-low{
+
+    color:#16a34a;
+
+    font-weight:700;
+
+}
+
+.cpu-medium{
+
+    color:#f59e0b;
+
+    font-weight:700;
+
+}
+
+.cpu-high{
+
+    color:#dc2626;
+
+    font-weight:700;
+
+}
+
+/* ==========================
+      HEALTH STATUS
+========================== */
+
+.health{
+
+    display:flex;
+
+    gap:10px;
+
+    align-items:center;
+
+}
+
+.health-dot{
+
+    width:12px;
+
+    height:12px;
+
+    border-radius:50%;
+
+}
+
+.health-good{
+
+    background:#16a34a;
+
+}
+
+.health-warning{
+
+    background:#f59e0b;
+
+}
+
+.health-danger{
+
+    background:#dc2626;
+
+}
+
+/* ==========================
+      ACTION BUTTONS
+========================== */
+
+.actions{
+
+    display:flex;
+
+    gap:15px;
+
+    flex-wrap:wrap;
+
+    margin-top:25px;
+
+}
+
+.actions .btn{
+
+    min-width:170px;
+
+}
+
+.download-btn{
+
+    background:#16a34a;
+
+    color:white;
+
+}
+
+.download-btn:hover{
+
+    background:#15803d;
+
+}
+
+.refresh-btn{
+
+    background:#2563eb;
+
+    color:white;
+
+}
+
+.refresh-btn:hover{
+
+    background:#1d4ed8;
+
+}
+
+/* ==========================
+      SEARCH BOX
+========================== */
+
+.search-box{
+
+    margin-top:20px;
+
+    margin-bottom:20px;
+
+}
+
+.search-box input{
+
+    width:100%;
+
+    padding:14px;
+
+    border:1px solid #cbd5e1;
+
+    border-radius:10px;
+
+    outline:none;
+
+    transition:.3s;
+
+}
+
+.search-box input:focus{
+
+    border-color:#2563eb;
+
+    box-shadow:0 0 8px rgba(37,99,235,.25);
+
+}
+
+/* ==========================
+      INFO PANEL
+========================== */
+
+.info-panel{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+    gap:20px;
+
+    margin-top:30px;
+
+}
+
+.info-box{
+
+    background:white;
+
+    padding:20px;
+
+    border-radius:15px;
+
+    box-shadow:var(--shadow);
+
+}
+
+.info-box h4{
+
+    margin-bottom:10px;
+
+    color:#475569;
+
+}
+
+.info-box p{
+
+    font-size:24px;
+
+    font-weight:bold;
+
+}
+
+/* ==========================
+      FOOTER
+========================== */
+
+footer{
+
+    margin-top:50px;
+
+    background:white;
+
+    padding:20px;
+
+    border-radius:15px;
+
+    box-shadow:var(--shadow);
+
+    text-align:center;
+
+    color:#64748b;
+
+    font-size:14px;
+
+}
+
+/* ==========================
+      SCROLLBAR
+========================== */
+
+::-webkit-scrollbar{
+
+    width:10px;
+
+    height:10px;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#94a3b8;
+
+    border-radius:20px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:#f1f5f9;
+
+}
+
+/* ==========================
+      ANIMATIONS
+========================== */
+
+.fade-in{
+
+    animation:fadeIn .8s ease;
+
+}
+
+@keyframes fadeIn{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(20px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+.slide-up{
+
+    animation:slideUp .6s ease;
+
+}
+
+@keyframes slideUp{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(35px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+/* =========================================
+   Region Overview
+========================================= */
+
+.region-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+
+    gap:25px;
+
+    margin-top:20px;
+
+}
+
+.region-card{
+
+    background:white;
+
+    border-radius:15px;
+
+    padding:22px;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.12);
+
+    transition:.3s;
+
+}
+
+.region-card:hover{
+
+    transform:translateY(-8px);
+
+}
+
+.region-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:20px;
+
+}
+
+.region-header h3{
+
+    color:#2563eb;
+
+}
+
+.region-content p{
+
+    margin:12px 0;
+
+    font-size:16px;
+
+}
+
+.dark-mode .region-card{
+
+    background:#1e293b;
+
+    color:white;
+
+}
+
+.dark-mode .region-header h3{
+
+    color:#60a5fa;
+
+}
+
+
+/* ===========================================
+   CLOUD AUDITOR DASHBOARD
+   PART 3
+   Dark Mode + Responsive + Final Polish
+=========================================== */
+
+/* ==========================
+        DARK MODE
+========================== */
+
+body.dark{
+
+    background:#0f172a;
+
+    color:#f8fafc;
+
+}
+
+body.dark .topbar{
+
+    background:#1e293b;
+
+    color:white;
+
+}
+
+body.dark .topbar p{
+
+    color:#94a3b8;
+
+}
+
+body.dark .card{
+
+    background:#1e293b;
+
+    color:white;
+
+}
+
+body.dark .card h4{
+
+    color:#cbd5e1;
+
+}
+
+body.dark .chart-card{
+
+    background:#1e293b;
+
+}
+
+body.dark .table-card{
+
+    background:#1e293b;
+
+}
+
+body.dark .info-box{
+
+    background:#1e293b;
+
+    color:white;
+
+}
+
+body.dark footer{
+
+    background:#1e293b;
+
+    color:#cbd5e1;
+
+}
+
+body.dark table{
+
+    color:white;
+
+}
+
+body.dark tbody td{
+
+    color:#f1f5f9;
+
+    border-bottom:1px solid #334155;
+
+}
+
+body.dark tbody tr:hover{
+
+    background:#334155;
+
+}
+
+body.dark .search-box input{
+
+    background:#0f172a;
+
+    color:white;
+
+    border:1px solid #475569;
+
+}
+
+body.dark .section-title h2{
+
+    color:white;
+
+}
+
+body.dark .section-title p{
+
+    color:#cbd5e1;
+
+}
+
+body.dark .chart-card h3{
+
+    color:white;
+
+}
+
+body.dark .table-card h2{
+
+    color:white;
+
+}
+
+/* ==========================
+      GLASS EFFECT
+========================== */
+
+.glass{
+
+    backdrop-filter:blur(18px);
+
+    background:rgba(255,255,255,.15);
+
+    border:1px solid rgba(255,255,255,.18);
+
+}
+
+body.dark .glass{
+
+    background:rgba(30,41,59,.45);
+
+}
+
+/* ==========================
+      CARD ANIMATION
+========================== */
+
+.card{
+
+    animation:cardAppear .6s ease;
+
+}
+
+@keyframes cardAppear{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(40px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+/* ==========================
+      TABLE ANIMATION
+========================== */
+
+.table-card{
+
+    animation:fadeTable .8s ease;
+
+}
+
+@keyframes fadeTable{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(25px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+/* ==========================
+      BUTTON EFFECT
+========================== */
+
+.btn{
+
+    position:relative;
+
+    overflow:hidden;
+
+}
+
+.btn::after{
+
+    content:"";
+
+    position:absolute;
+
+    width:0;
+
+    height:100%;
+
+    top:0;
+
+    left:0;
+
+    background:rgba(255,255,255,.18);
+
+    transition:.35s;
+
+}
+
+.btn:hover::after{
+
+    width:100%;
+
+}
+
+/* ==========================
+      SIDEBAR ICONS
+========================== */
+
+.menu a i{
+
+    width:22px;
+
+    text-align:center;
+
+}
+
+/* ==========================
+      TABLE STRIPES
+========================== */
+
+tbody tr:nth-child(even){
+
+    background:#f8fafc;
+
+}
+
+body.dark tbody tr:nth-child(even){
+
+    background:#233247;
+
+}
+
+/* ==========================
+      CHART HOVER
+========================== */
+
+.chart-card:hover{
+
+    transform:translateY(-5px);
+
+    transition:.3s;
+
+}
+
+/* ==========================
+      CARD SHADOW
+========================== */
+
+.card:hover{
+
+    box-shadow:0 15px 35px rgba(37,99,235,.20);
+
+}
+
+/* ==========================
+      MOBILE
+========================== */
+
+@media(max-width:1200px){
+
+    .chart-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+
+@media(max-width:992px){
+
+    .sidebar{
+
+        width:90px;
+
+    }
+
+    .sidebar .logo p{
+
+        display:none;
+
+    }
+
+    .sidebar .menu a{
+
+        justify-content:center;
+
+    }
+
+    .sidebar .menu a span{
+
+        display:none;
+
+    }
+
+    .main{
+
+        margin-left:90px;
+
+        width:calc(100% - 90px);
+
+    }
+
+}
+
+@media(max-width:768px){
+
+    .topbar{
+
+        flex-direction:column;
+
+        height:auto;
+
+        gap:15px;
+
+        padding:20px;
+
+    }
+
+    .cards{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .content{
+
+        padding:18px;
+
+    }
+
+    .actions{
+
+        flex-direction:column;
+
+    }
+
+    .actions .btn{
+
+        width:100%;
+
+    }
+
+}
+
+@media(max-width:600px){
+
+    .sidebar{
+
+        display:none;
+
+    }
+
+    .main{
+
+        margin-left:0;
+
+        width:100%;
+
+    }
+
+}
+
+/* ==========================
+      LOADING SPINNER
+========================== */
+
+.loader{
+
+    width:45px;
+
+    height:45px;
+
+    border:5px solid #ddd;
+
+    border-top:5px solid #2563eb;
+
+    border-radius:50%;
+
+    animation:spin 1s linear infinite;
+
+    margin:auto;
+
+}
+
+@keyframes spin{
+
+    0%{
+
+        transform:rotate(0deg);
+
+    }
+
+    100%{
+
+        transform:rotate(360deg);
+
+    }
+
+}
+
+/* ==========================
+      UTILITIES
+========================== */
+
+.mt-20{
+
+    margin-top:20px;
+
+}
+
+.mt-30{
+
+    margin-top:30px;
+
+}
+
+.mt-40{
+
+    margin-top:40px;
+
+}
+
+.text-center{
+
+    text-align:center;
+
+}
+
+.shadow{
+
+    box-shadow:var(--shadow);
+
+}
+
+.round{
+
+    border-radius:15px;
+
+}
+
+.hidden{
+
+    display:none;
+
+}
+
+.flex{
+
+    display:flex;
+
+}
+
+.flex-between{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+}
+
+/* ===========================================
+   END OF CLOUD AUDITOR CSS
+=========================================== */
+
+.risk-card{
+
+    padding:25px;
+
+    background:#fff7ed;
+
+    border-left:6px solid #ea580c;
+
+    border-radius:12px;
+
+}
+
+.dark-mode .risk-card{
+
+    background:#431407;
+
+    color:white;
+
+}
+
+.executive-dashboard{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+
+    gap:20px;
+
+    margin:30px 0;
+
+}
+
+.executive-card{
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:15px;
+
+    text-align:center;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.12);
+
+    transition:.3s;
+
+}
+
+.executive-card:hover{
+
+    transform:translateY(-8px);
+
+}
+
+.executive-card h4{
+
+    color:#666;
+
+    margin-bottom:15px;
+
+}
+
+.executive-card h1{
+
+    font-size:40px;
+
+    color:#2563eb;
+
+}
+
+.dark-mode .executive-card{
+
+    background:#1e293b;
+
+    color:white;
+
+}
+
+.search-box{
+
+    width:70%;
+
+    padding:14px;
+
+    border-radius:8px;
+
+    border:1px solid #ccc;
+
+    font-size:16px;
+
+}
+
+form button{
+
+    padding:14px 25px;
+
+    border:none;
+
+    background:#2563eb;
+
+    color:white;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+    margin-left:10px;
+
+}
+
+form button:hover{
+
+    background:#1d4ed8;
+
+}
+
+/* =====================================
+   Top Costly Resources
+===================================== */
+
+.cost-badge{
+
+    background:#fee2e2;
+
+    color:#dc2626;
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+    font-weight:bold;
+
+}
+
+.dark-mode .cost-badge{
+
+    background:#7f1d1d;
+
+    color:#fecaca;
+
+}
+
+/* =====================================
+   Scan History
+===================================== */
+
+.history-saving{
+
+    color:#16a34a;
+
+    font-weight:bold;
+
+}
+
+.dark-mode .history-saving{
+
+    color:#4ade80;
+
+}
+
+/* =========================================
+   Security Center
+========================================= */
+
+.security-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+
+    gap:20px;
+
+    margin-top:20px;
+
+}
+
+.security-card{
+
+    background:white;
+
+    border-radius:15px;
+
+    padding:25px;
+
+    text-align:center;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.12);
+
+    transition:.3s;
+
+}
+
+.security-card:hover{
+
+    transform:translateY(-8px);
+
+}
+
+.security-card h3{
+
+    color:#555;
+
+}
+
+.security-card h1{
+
+    font-size:40px;
+
+    color:#dc2626;
+
+    margin:15px 0;
+
+}
+
+.recommend-list{
+
+    margin-top:20px;
+
+    padding-left:25px;
+
+}
+
+.recommend-list li{
+
+    margin-bottom:12px;
+
+    font-size:16px;
+
+}
+
+.dark-mode .security-card{
+
+    background:#1e293b;
+
+    color:white;
+
+}
+
+/* =====================================
+   Region Cost Breakdown
+===================================== */
+
+#regionCostChart{
+
+    margin-top:30px;
+
+    width:100%;
+
+    max-height:400px;
+
+}
+
+/* =====================================
+   Loading Screen
+===================================== */
+
+#loading-screen{
+
+    position:fixed;
+
+    top:0;
+
+    left:0;
+
+    width:100%;
+
+    height:100vh;
+
+    background:#0f172a;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    z-index:99999;
+
+}
+
+.loader-card{
+
+    width:500px;
+
+    background:#1e293b;
+
+    padding:40px;
+
+    border-radius:20px;
+
+    text-align:center;
+
+    box-shadow:0 10px 35px rgba(0,0,0,.4);
+
+}
+
+.loader-card h1{
+
+    color:white;
+
+    font-size:38px;
+
+    margin-bottom:25px;
+
+}
+
+.loader-card h3{
+
+    color:#cbd5e1;
+
+    margin-bottom:30px;
+
+}
+
+.progress-container{
+
+    width:100%;
+
+    height:20px;
+
+    background:#334155;
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+}
+
+#progress-bar{
+
+    width:0%;
+
+    height:100%;
+
+    background:linear-gradient(90deg,#3b82f6,#22c55e);
+
+    transition:width .5s ease;
+
+}
+
+#progress-text{
+
+    margin-top:20px;
+
+    color:white;
+
+    font-size:28px;
+
+    font-weight:bold;
+
+}
+
+#loading-screen{
+
+    transition:opacity .4s ease;
+
+}
